@@ -7,7 +7,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return CupertinoApp(
+    return MaterialApp(
       title: 'Flutter Demo',
       home: MyHomePage(title: 'Flutter Demo Main Page'),
     );
@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  List<Widget> _divide(List<Widget> l) {
+  List<Widget> divide(List<Widget> l) {
     for (var i = 1; i < l.length; i += 2) {
       l.insert(i, Divider());
 
@@ -56,48 +56,43 @@ class _MyHomePageState extends State<MyHomePage> {
     return l;
   }
 
-  List<T> _concat<T>(List<T> list, {List<T> addingList, T addingItem}) {
+  List<T> concat<T>(List<T> list, {List<T> addingList, T addingItem}) {
     if (addingList != null) list.addAll(addingList);
     if (addingItem != null) list.add(addingItem);
     
     return list;
   }
 
-  void _dateChanged(DateTime dt) {
+  void dateChanged(DateTime dt) {
     return;
   }
 
-  void _privacyChanged(Privacy p) {
+  void privacyChanged(Privacy p) {
     return;
   }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(      
-      child: CupertinoScrollbar(
-        child: CustomScrollView(
-          slivers: [
-            CupertinoSliverNavigationBar(
-              automaticallyImplyLeading: false,
-              largeTitle: Text('Nueva Fiesta'),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                _divide([
-                  CupertinoTextField(),
-                  CupertinoDatePicker(onDateTimeChanged: _dateChanged,),
-                  CupertinoSegmentedControl(
-                    children: {
-                      Privacy.public: Text('Public'),
-                      Privacy.inviteOnly: Text('Invite-Only'),
-                      Privacy.friends: Text('Friends Only'),
-                      Privacy.friendsOfFriends: Text('Friends of Friends'),
-                    },
-                    onValueChanged: _privacyChanged,
-                  )
-                ])
-              )
-            )
+    return Scaffold(      
+      appBar: AppBar(title: Text('Crear Fiesta'), centerTitle: true),
+      body: Center(
+        child: ListView(
+          children: [
+            //divide([
+              TextField(),
+              //Date(mode: CupertinoDatePickerMode.date, onDateTimeChanged: dateChanged,),
+              Row(children: <Widget>[
+                Radio(value: 'Public', groupValue: 'Public'),
+
+              ],) 
+                /*children: {
+                  Privacy.public: ,
+                  Privacy.inviteOnly: Text('Invite-Only'),
+                  Privacy.friends: Text('Friends Only'),
+                  Privacy.friendsOfFriends: Text('Friends of Friends'),
+                },
+                onValueChanged: privacyChanged,
+              )]*/
           ]
         ),
       ),
