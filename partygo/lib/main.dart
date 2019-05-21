@@ -17,15 +17,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -33,71 +24,79 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  Privacy _partyPrivacy = Privacy.public;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  Widget _rowSpacer() => Padding(padding: EdgeInsets.only(top: 30));
 
-  List<Widget> divide(List<Widget> l) {
-    for (var i = 1; i < l.length; i += 2) {
-      l.insert(i, Divider());
-
-      if (l.length - i <= 2) break;
-    }
-
-    return l;
-  }
-
-  List<T> concat<T>(List<T> list, {List<T> addingList, T addingItem}) {
-    if (addingList != null) list.addAll(addingList);
-    if (addingItem != null) list.add(addingItem);
-    
-    return list;
-  }
-
-  void dateChanged(DateTime dt) {
-    return;
-  }
-
-  void privacyChanged(Privacy p) {
-    return;
+  List<Widget> _privacyRadios() {
+    return [ 
+      [Privacy.public, 'Public'],
+      [Privacy.inviteOnly, 'Invite Only'],
+      [Privacy.friends, 'Friends Only'],
+      [Privacy.friendsOfFriends, 'Friends of Friends']
+    ].map((x) {
+      return Expanded(
+        child: Column(
+          children: [
+            Radio(value: x[0], groupValue: _partyPrivacy, onChanged: (x) {
+              setState(() {
+                _partyPrivacy = x;
+              });
+            }),
+            Text(x[1], textAlign: TextAlign.center)
+          ]
+        )
+      );
+    }).toList(growable: false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(      
-      appBar: AppBar(title: Text('Crear Fiesta'), centerTitle: true),
+    return Scaffold(
+      appBar: AppBar(title: Text('Crear Fiesta'), centerTitle: true, backgroundColor: Colors.purple,),
       body: Center(
-        child: ListView(
-          children: [
-            //divide([
-              TextField(),
-              //Date(mode: CupertinoDatePickerMode.date, onDateTimeChanged: dateChanged,),
-              Row(children: <Widget>[
-                Radio(value: 'Public', groupValue: 'Public'),
+        child: Padding(padding: EdgeInsets.symmetric(vertical: 25, horizontal: 25),
+          child: Form(
+            child: ListView(
+              children: [
+                TextFormField(decoration: InputDecoration(hintText: 'Título')),
+                LocationTextField(child: TextFormField(decoration: InputDecoration(hintText: 'Ubicación'))),
+                _rowSpacer(),
+                TextFormField(minLines: 5, maxLines: 5, decoration: InputDecoration(hintText: 'Descripción')),
+                _rowSpacer(),
+                TextFormField(decoration: InputDecoration(hintText: 'Disponibilidad')),
+                Row(children: _privacyRadios(), crossAxisAlignment: CrossAxisAlignment.start,),
 
-              ],) 
-                /*children: {
-                  Privacy.public: ,
-                  Privacy.inviteOnly: Text('Invite-Only'),
-                  Privacy.friends: Text('Friends Only'),
-                  Privacy.friendsOfFriends: Text('Friends of Friends'),
-                },
-                onValueChanged: privacyChanged,
-              )]*/
-          ]
+              ]
+            ),
+          ),
         ),
       ),
     );
-  }    
+  }      
+}
+
+class LocationTextField extends StatefulWidget {
+  final Widget child;
+
+  LocationTextField({this.child});
+
+  @override
+  State<StatefulWidget> createState() => LocationTextFieldState();    
+}
+
+class LocationTextFieldState extends State<LocationTextField> {
+  Location _location;
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
+class Location {
+  double latitude;
+  double longitude;
 }
 
 enum Privacy {
