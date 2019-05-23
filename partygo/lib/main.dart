@@ -11,10 +11,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'PartyGO',
-      home: CreatePartyPage(title: 'Crear Fiesta'),
+      home: CreatePartyDetailsPage(title: 'Crear Fiesta'),
       routes: {
-        '/create_party': (context) => CreatePartyPage(title: 'Crear Fiesta'),
-        '/create_party/details': (context) => CreatePartyDetailsPage(title: 'Detalles'),
+        '/create_party/': (context) => CreatePartyDetailsPage(title: 'Crear Fiesta'),
         '/create_party/privacy': (context) => CreatePartyPrivacyPage(title: 'Privacidad'),
         '/create_party/availability': (context) => CreatePartyAvailabilityPage(title: 'Disponibilidad'),
         '/create_party/description': (context) => CreatePartyDescriptionPage(title: 'Info Adicional'),
@@ -127,8 +126,7 @@ class CreatePartyDetailsPage extends StatefulWidget {
 }
 
 class _CreatePartyDetailsPageState extends State<CreatePartyDetailsPage> {
-  DateTime _partyDate = DateTime.now().add(Duration(hours: 1));
-
+  DateTime _partyDate;
   String locale;
   bool _isInitialized = false;
 
@@ -138,6 +136,12 @@ class _CreatePartyDetailsPageState extends State<CreatePartyDetailsPage> {
       onConfirm: (dt) {
         setState(() => _partyDate = dt);
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _partyDate = DateTime.now().add(Duration(hours: 1));
   }
 
   @override
@@ -154,129 +158,28 @@ class _CreatePartyDetailsPageState extends State<CreatePartyDetailsPage> {
     return CreatePartyScaffold(
       title: widget.title,
       nextPage: '/create_party/privacy',
-      body: Padding(padding: EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-        child: Column(
-          children: [
-            TextField(decoration: InputDecoration(labelText: 'Título'),),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _showDatePicker(context),
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Fecha', style: Theme.of(context).textTheme.subhead.merge(TextStyle(color: Colors.black54))),
-                Text(DateFormat.yMMMd(locale).format(_partyDate) + ' ' + DateFormat('h:mm a', locale).format(_partyDate),
-                  textAlign: TextAlign.right,
-                  style: Theme.of(context).textTheme.subhead.merge(TextStyle(decoration: TextDecoration.underline, decorationColor: Colors.black54, color: Colors.black54))
-                )
-              ]),
-            ),
-          ]
-        )
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Como se va a llamar tu fiesta?', style: TextStyle(fontSize: 20)),
+          TextField(decoration: InputDecoration(hintText: 'e.g. La fiesta de Jorgito'),),
+          Padding(padding: EdgeInsets.only(top: 20)),
+
+          Text('Cuando va a ser?', style: TextStyle(fontSize: 20)),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _showDatePicker(context),
+            child: TextField(
+              controller: TextEditingController(text: DateFormat.yMMMd(locale).format(_partyDate) + ' ' + DateFormat('h:mm a', locale).format(_partyDate)),
+              textAlign: TextAlign.left,
+              enabled: false,
+              decoration: InputDecoration(enabled: true),
+            )
+          ),
+        ]
       )
     );
   } 
-}
-
-class CreatePartyPage extends StatefulWidget {
-  CreatePartyPage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _CreatePartyPageState createState() => _CreatePartyPageState();
-}
-
-class _CreatePartyPageState extends State<CreatePartyPage> {
-  Privacy _partyPrivacy = Privacy.public;
-  DateTime _partyDate = DateTime.now().add(Duration(hours: 1));
-
-  String locale;
-  bool _isInitialized = false;
-  
-  Widget _rowSpacer() => Padding(padding: EdgeInsets.only(top: 30));
-
-  List<Widget> _privacyRadios() => [ 
-    [Privacy.public, 'Public'],
-    [Privacy.inviteOnly, 'Invite Only'],
-    [Privacy.friends, 'Friends Only'],
-    [Privacy.friendsOfFriends, 'Friends of Friends']
-  ].map((x) {
-    return RowAreaRadio(
-      children: [
-        Radio(
-          value: x[0], groupValue: _partyPrivacy, 
-          onChanged: (x) => setState(() => _partyPrivacy = x)
-        ),
-        Text(x[1], style: TextStyle(fontSize: 16))
-      ]
-    );
-  }).toList(growable: false);  
-
-  void _showDatePicker(BuildContext context) {
-    DatePicker.showDateTimePicker(context,
-      currentTime: _partyDate,
-      onConfirm: (dt) {
-        setState(() => _partyDate = dt);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_isInitialized) {
-      _isInitialized = true;
-
-      final tempcale = Localizations.localeOf(context);
-      locale = tempcale.languageCode + '_' + tempcale.countryCode;
-      
-      initializeDateFormatting(locale, null);
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: Padding(padding: EdgeInsets.only(left: 8), child: Text(widget.title, style: TextStyle(fontSize: 28))), centerTitle: false),
-      bottomNavigationBar: BottomAppBar(child: Row(children: [IconButton(icon: Icon(Icons.arrow_back), onPressed: null)], mainAxisAlignment: MainAxisAlignment.start), shape: CircularNotchedRectangle(),),
-      floatingActionButton: FloatingActionButton(onPressed: () { Navigator.of(context).pushNamed('/create_party/details'); }, child: Icon(Icons.navigate_next)),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      body: Center(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 25),
-          child: Form(
-            child: ListView(
-              children: [
-                Padding(padding: EdgeInsets.only(top: 25)),
-                Text('Detalles', style: TextStyle(fontSize: 22, )),
-                TextField(decoration: InputDecoration(labelText: 'Título')),
-                LocationTextField(child: TextFormField(decoration: InputDecoration(labelText: 'Ubicación'))),
-                _rowSpacer(),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => _showDatePicker(context),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text('Fecha', style: Theme.of(context).textTheme.subhead.merge(TextStyle(color: Colors.black54))),
-                    Text(DateFormat.yMMMd(locale).format(_partyDate) + ' ' + DateFormat('h:mm a', locale).format(_partyDate),
-                      textAlign: TextAlign.right,
-                      style: Theme.of(context).textTheme.subhead.merge(TextStyle(decoration: TextDecoration.underline, decorationColor: Colors.black54, color: Colors.black54))
-                    )
-                  ]),
-                ),
-                
-                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                  Expanded(child: Padding(padding: EdgeInsets.only(right: 20), child: TextField(keyboardType: TextInputType.number, maxLength: 4, decoration: InputDecoration(labelText: 'Disponibilidad')))),
-                  Expanded(child: TextField(keyboardType: TextInputType.number, maxLength: 2, decoration: InputDecoration(labelText: 'Edad Mínima')))
-                ]),
-                _rowSpacer(),
-                
-                Text('Privacidad', style: TextStyle(fontSize: 22)),
-                Column(children: _privacyRadios(), mainAxisAlignment: MainAxisAlignment.start,),
-                _rowSpacer(),
-
-                Text('Descripción', style: TextStyle(fontSize: 22)),
-                TextFormField(minLines: 1, maxLines: 5, decoration: InputDecoration(hintText: 'e.g. Escabio cada 2!'), textInputAction: TextInputAction.done,),
-                _rowSpacer(),
-              ]
-            ),
-          ),
-        ),
-      ),
-    );
-  }      
 }
 
 class CreatePartyScaffold extends StatelessWidget {
@@ -289,7 +192,7 @@ class CreatePartyScaffold extends StatelessWidget {
   @override 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title, style: TextStyle(fontSize: 28)), centerTitle: false),
+      appBar: AppBar(title: Padding(padding: ModalRoute.of(context).isFirst ? EdgeInsets.only(left: 8) : null, child: Text(title, style: TextStyle(fontSize: 28))), centerTitle: false),
       //bottomNavigationBar: BottomAppBar(child: Row(children: [IconButton(icon: Icon(Icons.arrow_back), onPressed: null)], mainAxisAlignment: MainAxisAlignment.start), shape: CircularNotchedRectangle(),),
       floatingActionButton: _displayFloatingButton(context),
       body: Padding(padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20), child: body),
